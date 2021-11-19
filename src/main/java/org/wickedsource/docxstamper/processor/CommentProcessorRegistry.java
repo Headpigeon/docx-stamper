@@ -25,10 +25,12 @@ import org.wickedsource.docxstamper.util.walk.CoordinatesWalker;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Allows registration of ICommentProcessor objects. Each registered
@@ -43,6 +45,8 @@ public class CommentProcessorRegistry {
   private Map<ICommentProcessor, Class<?>> commentProcessorInterfaces = new HashMap<>();
 
   private List<ICommentProcessor> commentProcessors = new ArrayList<>();
+  
+  private Set<String> skipInstructions = new HashSet<>();
 
   private ExpressionResolver expressionResolver = new ExpressionResolver();
 
@@ -66,6 +70,10 @@ public class CommentProcessorRegistry {
     this.commentProcessors.add(commentProcessor);
   }
 
+    public Set<String> getSkipInstructions() {
+        return skipInstructions;
+    }
+  
   /**
    * Lets each registered ICommentProcessor have a run on the specified docx
    * document. At the end of the document the commit method is called for each
@@ -196,6 +204,11 @@ public class CommentProcessorRegistry {
     }
 
     String commentString = CommentUtil.getCommentString(comment);
+    for (String si : skipInstructions) {
+        if (commentString.startsWith(si)) {
+            return Optional.empty();
+        }
+    }
 
     for (final ICommentProcessor processor : commentProcessors) {
       Class<?> commentProcessorInterface = commentProcessorInterfaces.get(processor);

@@ -37,6 +37,7 @@ public class DocxStamper<T> {
   private PlaceholderReplacer<T> placeholderReplacer;
 
   private CommentProcessorRegistry commentProcessorRegistry;
+  private CommentProcessorRegistry displayIfCommentProcessorRegistry;
 
   private TypeResolverRegistry typeResolverRegistry;
 
@@ -71,12 +72,20 @@ public class DocxStamper<T> {
     commentProcessorRegistry.registerCommentProcessor(IRepeatProcessor.class, new RepeatProcessor(typeResolverRegistry, expressionResolver));
     commentProcessorRegistry.registerCommentProcessor(IParagraphRepeatProcessor.class, new ParagraphRepeatProcessor(typeResolverRegistry));
     commentProcessorRegistry.registerCommentProcessor(IRepeatDocPartProcessor.class, new RepeatDocPartProcessor(typeResolverRegistry));
-    commentProcessorRegistry.registerCommentProcessor(IDisplayIfProcessor.class, new DisplayIfProcessor());
     commentProcessorRegistry.registerCommentProcessor(IReplaceWithProcessor.class,
             new ReplaceWithProcessor());
     for (Map.Entry<Class<?>, ICommentProcessor> entry : config.getCommentProcessors().entrySet()) {
       commentProcessorRegistry.registerCommentProcessor(entry.getKey(), entry.getValue());
     }
+    
+    commentProcessorRegistry.getSkipInstructions().add("displayParagraphIf");
+    commentProcessorRegistry.getSkipInstructions().add("displayTableRowIf");
+    commentProcessorRegistry.getSkipInstructions().add("displayTableIf");
+    
+    displayIfCommentProcessorRegistry = new CommentProcessorRegistry(placeholderReplacer);
+    displayIfCommentProcessorRegistry.setExpressionResolver(expressionResolver);
+    displayIfCommentProcessorRegistry.setFailOnInvalidExpression(config.isFailOnUnresolvedExpression());
+    displayIfCommentProcessorRegistry.registerCommentProcessor(IDisplayIfProcessor.class, new DisplayIfProcessor());
   }
 
   /**
@@ -139,6 +148,7 @@ public class DocxStamper<T> {
       replaceExpressions(document, proxyBuilder);
       document.save(out);
       commentProcessorRegistry.reset();
+      displayIfCommentProcessorRegistry.reset();
     } catch (DocxStamperException e) {
       throw e;
     } catch (Exception e) {
@@ -166,6 +176,7 @@ public class DocxStamper<T> {
 
   private void processComments(final WordprocessingMLPackage document, ProxyBuilder<T> proxyBuilder) {
     commentProcessorRegistry.runProcessors(document, proxyBuilder);
+    displayIfCommentProcessorRegistry.runProcessors(document, proxyBuilder);
   }
 
 }
