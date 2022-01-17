@@ -10,6 +10,7 @@ import org.wickedsource.docxstamper.util.ObjectDeleter;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.docx4j.wml.P;
 
 public class DisplayIfProcessor extends BaseCommentProcessor implements IDisplayIfProcessor {
 
@@ -56,7 +57,12 @@ public class DisplayIfProcessor extends BaseCommentProcessor implements IDisplay
 	public void displayParagraphIf(Boolean condition) {
 		if (!condition) {
 			ParagraphCoordinates coords = getCurrentParagraphCoordinates();
-			paragraphsToBeRemoved.add(coords);
+			int paragraphIndex = coords.getIndex();
+			P paragraph = getCurrentParagraphCoordinates().getParagraph();
+			for (P p : getParagraphsInsideComment(paragraph)) {
+				paragraphsToBeRemoved.add(new ParagraphCoordinates(p, paragraphIndex));
+				paragraphIndex++;
+			}
 		}
 	}
 
