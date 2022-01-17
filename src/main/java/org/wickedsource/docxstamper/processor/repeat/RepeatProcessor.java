@@ -44,16 +44,18 @@ public class RepeatProcessor extends BaseCommentProcessor implements IRepeatProc
         for (TableRowCoordinates rCoords : tableRowsToRepeat.keySet()) {
             List<Object> expressionContexts = tableRowsToRepeat.get(rCoords);
             int index = rCoords.getIndex();
+            Loop iter = new Loop(0, expressionContexts.size());
             for (final Object expressionContext : expressionContexts) {
                 Tr rowClone = XmlUtils.deepCopy(rCoords.getRow());
                 DocumentWalker walker = new BaseDocumentWalker(rowClone) {
                     @Override
                     protected void onParagraph(P paragraph) {
-                        placeholderReplacer.resolveExpressionsForParagraph(paragraph, expressionContext, document);
+                        placeholderReplacer.resolveExpressionsForParagraph(paragraph, expressionContext, iter, document);
                     }
                 };
                 walker.walk();
                 rCoords.getParentTableCoordinates().getTable().getContent().add(++index, rowClone);
+                iter.next();
             }
             rCoords.getParentTableCoordinates().getTable().getContent().remove(rCoords.getRow());
         }

@@ -44,22 +44,24 @@ public class RepeatDocPartProcessor extends BaseCommentProcessor implements IRep
 
             CommentUtil.deleteComment(commentWrapper); // for deep copy without comment
 
+            Loop loop = new Loop(0, expressionContexts.size());
             for (final Object expressionContext : expressionContexts) {
                 for (final Object element : repeatElements) {
                     Object elClone = XmlUtils.unwrap(XmlUtils.deepCopy(element));
                     if (elClone instanceof P) {
-                        placeholderReplacer.resolveExpressionsForParagraph((P) elClone, expressionContext, document);
+                        placeholderReplacer.resolveExpressionsForParagraph((P) elClone, expressionContext, loop, document);
                     } else if (elClone instanceof ContentAccessor) {
                         DocumentWalker walker = new BaseDocumentWalker((ContentAccessor)elClone) {
                             @Override
                             protected void onParagraph(P paragraph) {
-                                placeholderReplacer.resolveExpressionsForParagraph(paragraph, expressionContext, document);
+                                placeholderReplacer.resolveExpressionsForParagraph(paragraph, expressionContext, loop, document);
                             }
                         };
                         walker.walk();
                     }
                     gcp.getContent().add(insertIndex++, elClone);
                 }
+                loop.next();
             }
             gcp.getContent().removeAll(repeatElements);
         }

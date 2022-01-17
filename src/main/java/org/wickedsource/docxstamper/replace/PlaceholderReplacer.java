@@ -17,6 +17,7 @@ import org.wickedsource.docxstamper.api.typeresolver.ITypeResolver;
 import org.wickedsource.docxstamper.api.typeresolver.TypeResolverRegistry;
 import org.wickedsource.docxstamper.el.ExpressionResolver;
 import org.wickedsource.docxstamper.el.ExpressionUtil;
+import org.wickedsource.docxstamper.processor.repeat.Loop;
 import org.wickedsource.docxstamper.proxy.ProxyBuilder;
 import org.wickedsource.docxstamper.proxy.ProxyException;
 import org.wickedsource.docxstamper.util.ParagraphWrapper;
@@ -78,7 +79,7 @@ public class PlaceholderReplacer<T> {
       CoordinatesWalker walker = new BaseCoordinatesWalker(document) {
         @Override
         protected void onParagraph(ParagraphCoordinates paragraphCoordinates) {
-          resolveExpressionsForParagraph(paragraphCoordinates.getParagraph(), expressionContext, document);
+          resolveExpressionsForParagraph(paragraphCoordinates.getParagraph(), expressionContext, null, document);
         }
       };
       walker.walk();
@@ -88,12 +89,12 @@ public class PlaceholderReplacer<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public void resolveExpressionsForParagraph(P p, T expressionContext, WordprocessingMLPackage document) {
+  public void resolveExpressionsForParagraph(P p, T expressionContext, Loop loop, WordprocessingMLPackage document) {
     ParagraphWrapper paragraphWrapper = new ParagraphWrapper(p);
     List<String> placeholders = expressionUtil.findVariableExpressions(paragraphWrapper.getText());
     for (String placeholder : placeholders) {
       try {
-        Object replacement = expressionResolver.resolveExpression(placeholder, expressionContext);
+        Object replacement = expressionResolver.resolveExpression(placeholder, expressionContext, loop);
         if (replacement != null) {
           ITypeResolver resolver = typeResolverRegistry.getResolverForType(replacement.getClass());
           Object replacementObject = resolver.resolve(document, replacement);

@@ -56,13 +56,15 @@ public class ParagraphRepeatProcessor extends BaseCommentProcessor implements IP
 
 
             List<P> paragraphsToAdd = new ArrayList<>();
+            Loop loop = new Loop(0, expressionContexts.size());
             for (final Object expressionContext : expressionContexts) {
                 for (P paragraphToClone : paragraphsToRepeat.paragraphs) {
                     P pClone = XmlUtils.deepCopy(paragraphToClone);
-                    placeholderReplacer.resolveExpressionsForParagraph(pClone, expressionContext, document);
+                    placeholderReplacer.resolveExpressionsForParagraph(pClone, expressionContext, loop, document);
 
                     paragraphsToAdd.add(pClone);
                 }
+                loop.next();
             }
 
             Object parent = rCoords.getParagraph().getParent();
