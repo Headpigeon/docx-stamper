@@ -43,6 +43,23 @@ public class RepeatDocPartProcessor extends BaseCommentProcessor implements IRep
             int insertIndex = gcp.getContent().indexOf(repeatElements.stream().findFirst().orElse(null));
 
             CommentUtil.deleteComment(commentWrapper); // for deep copy without comment
+            
+            List<Object> originalRepeatElements = repeatElements;
+
+            /*
+               If the document part to repeat is only a part of a paragraph, create a dummy paragraph
+               containing only those parts to repeat, allowing the reuse of the the preexisting functionality
+               for repeating whole paragraphs. The only difference is that, when adding the results to 
+               the final documents, only the dummy paragraph's content must be added instead of the whole paragraph.
+            */
+            boolean isPartialParagraph = repeatElements.stream().noneMatch(el -> el instanceof P);
+            if (isPartialParagraph) {
+                P parent = (isPartialParagraph ? getParentParagraph(repeatElements) : null);
+                if (parent != null) {
+                    repeatElements = new ArrayList<>();
+                    repeatElements.add(createParagraphFromContent(originalRepeatElements, parent.getPPr()));
+                }
+            }
 
             Loop loop = new Loop(0, expressionContexts.size());
             for (final Object expressionContext : expressionContexts) {
@@ -59,11 +76,17 @@ public class RepeatDocPartProcessor extends BaseCommentProcessor implements IRep
                         };
                         walker.walk();
                     }
-                    gcp.getContent().add(insertIndex++, elClone);
+                    if (isPartialParagraph) {
+                        for (Object contentClone : ((P)elClone).getContent()) {
+                            gcp.getContent().add(insertIndex++, contentClone);
+                        }
+                    } else {
+                        gcp.getContent().add(insertIndex++, elClone);
+                    }
                 }
                 loop.next();
             }
-            gcp.getContent().removeAll(repeatElements);
+            gcp.getContent().removeAll(originalRepeatElements);
         }
     }
 
@@ -89,6 +112,28 @@ public class RepeatDocPartProcessor extends BaseCommentProcessor implements IRep
             }
         }
         return repeatElements;
+    }
+    
+    private static P getParentParagraph(List<Object> objects) {
+        for (Object el : objects) {
+            if (el instanceof R) {
+                Object parent = ((R)el).getParent();
+                if (parent instanceof P) {
+                    return (P)parent;
+                }
+            }
+        }
+        return null;
+    }
+    
+    private static P createParagraphFromContent(List<Object> objects, PPr props) {
+        P p = new P();
+        p.getContent().addAll(objects);
+        p.getContent().removeIf(el -> el instanceof CommentRangeStart || el instanceof CommentRangeEnd);
+        if (props != null) {
+            p.setPPr(XmlUtils.deepCopy(props));
+        }
+        return p;
     }
 
     private static ContentAccessor findGreatestCommonParent(Object targetSearch, ContentAccessor searchFrom) {
