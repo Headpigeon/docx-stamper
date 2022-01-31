@@ -28,7 +28,7 @@ public class ProxyBuilder<T> {
   }
 
   /**
-   * Specifies an interfaces and an implementation of an interface by which the root object
+   * Specifies an interface and an implementation of an interface by which the root object
    * shall be extended.
    *
    * @param interfaceClass the class of the interface
@@ -37,6 +37,18 @@ public class ProxyBuilder<T> {
    */
   public ProxyBuilder<T> withInterface(Class<?> interfaceClass, Object interfaceImpl) {
     this.interfacesToImplementations.put(interfaceClass, interfaceImpl);
+    return this;
+  }
+  
+  /**
+   * Specifies a set of interfaces and their implementations by which the root object
+   * shall be extended.
+   * 
+   * @param interfaceImpls mapping of interfaces to their respective implementation
+   * @return this builder for chaining.
+   */
+  public ProxyBuilder<T> withInterfaces(Map<Class<?>, Object> interfaceImpls) {
+    this.interfacesToImplementations.putAll(interfaceImpls);
     return this;
   }
 

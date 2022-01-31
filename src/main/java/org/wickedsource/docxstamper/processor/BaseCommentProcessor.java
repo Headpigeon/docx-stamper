@@ -2,7 +2,9 @@ package org.wickedsource.docxstamper.processor;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.wickedsource.docxstamper.api.commentprocessor.ICommentProcessor;
 import org.wickedsource.docxstamper.api.coordinates.ParagraphCoordinates;
 import org.wickedsource.docxstamper.api.coordinates.RunCoordinates;
@@ -21,6 +23,9 @@ public abstract class BaseCommentProcessor implements ICommentProcessor {
 	private RunCoordinates currentRunCoordinates;
 
 	private CommentWrapper currentCommentWrapper;
+    
+    private Map<Class<?>, Object> proxyInterfaceImplementations = new HashMap<>();
+    
 
 	public RunCoordinates getCurrentRunCoordinates() {
 		return currentRunCoordinates;
@@ -40,6 +45,14 @@ public abstract class BaseCommentProcessor implements ICommentProcessor {
 		return currentParagraphCoordinates;
 	}
 
+    public Map<Class<?>, Object> getProxyInterfaceImplementations() {
+        return proxyInterfaceImplementations;
+    }
+
+    public void setProxyInterfaceImplementations(Map<Class<?>, Object> proxyInterfaceImplementations) {
+        this.proxyInterfaceImplementations = proxyInterfaceImplementations;
+    }
+    
 	@Override
 	public void setCurrentCommentWrapper(CommentWrapper currentCommentWrapper) {
 		Objects.requireNonNull(currentCommentWrapper.getCommentRangeStart());

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CustomCommentProcessorTest extends AbstractDocx4jTest {
 
@@ -62,6 +63,11 @@ public class CustomCommentProcessorTest extends AbstractDocx4jTest {
 
         }
 
+        @Override
+        public void setProxyInterfaceImplementations(Map<Class<?>, Object> proxyInterfaceImplementations) {
+            
+        }
+        
         @Override
         public void reset() {
 

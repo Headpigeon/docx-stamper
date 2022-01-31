@@ -1,5 +1,6 @@
 package org.wickedsource.docxstamper.proxy;
 
+import java.util.Map;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.wickedsource.docxstamper.api.commentprocessor.ICommentProcessor;
 import org.wickedsource.docxstamper.api.coordinates.ParagraphCoordinates;
@@ -33,6 +34,11 @@ public class TestImpl implements ITestInterface, ICommentProcessor {
 	public void setCurrentCommentWrapper(CommentWrapper commentWrapper) {
 
 	}
+
+    @Override
+    public void setProxyInterfaceImplementations(Map<Class<?>, Object> proxyInterfaceImplementations) {
+
+    }
 
 	@Override
 	public void reset() {

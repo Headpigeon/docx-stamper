@@ -12,7 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.wickedsource.docxstamper.api.DocxStamperException;
 import static org.wickedsource.docxstamper.processor.BaseCommentProcessor.getParagraphsInsideComment;
+import org.wickedsource.docxstamper.proxy.ProxyBuilder;
+import org.wickedsource.docxstamper.proxy.ProxyException;
 import org.wickedsource.docxstamper.util.CommentUtil;
 
 public abstract class ParagraphsRepeatProcessor extends BaseCommentProcessor {
@@ -49,6 +54,8 @@ public abstract class ParagraphsRepeatProcessor extends BaseCommentProcessor {
 
     @Override
     public void commitChanges(WordprocessingMLPackage document) {
+        ProxyBuilder proxyBuilder = new ProxyBuilder().withInterfaces(getProxyInterfaceImplementations());
+        
         for (ParagraphCoordinates rCoords : pToRepeat.keySet()) {
             ParagraphsToRepeat paragraphsToRepeat = pToRepeat.get(rCoords);
             List<Object> expressionContexts = paragraphsToRepeat.data;
@@ -56,7 +63,13 @@ public abstract class ParagraphsRepeatProcessor extends BaseCommentProcessor {
 
             List<Object> objectsToAdd = new ArrayList<>();
             Loop loop = new Loop(0, expressionContexts.size());
-            for (final Object expressionContext : expressionContexts) {
+            for (final Object baseExpressionContext : expressionContexts) {
+                Object expressionContext;
+                try {
+                    expressionContext = proxyBuilder.withRoot(baseExpressionContext).build();
+                } catch (ProxyException ex) {
+                    throw new DocxStamperException("Could not create proxy around repeated context object!", ex);
+                }
                 List<Object> exprObjectsToAdd = new ArrayList<>();
                 for (P paragraphToClone : paragraphsToRepeat.paragraphs) {
                     P pClone = XmlUtils.deepCopy(paragraphToClone);

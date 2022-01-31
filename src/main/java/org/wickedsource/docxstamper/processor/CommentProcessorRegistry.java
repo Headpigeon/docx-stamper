@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.expression.spel.SpelParseException;
+import org.wickedsource.docxstamper.DocxStamperConfiguration;
 import org.wickedsource.docxstamper.api.DocxStamperException;
 import org.wickedsource.docxstamper.api.UnresolvedExpressionException;
 import org.wickedsource.docxstamper.api.commentprocessor.ICommentProcessor;
@@ -41,6 +42,8 @@ import java.util.Set;
 public class CommentProcessorRegistry {
 
   private Logger logger = LoggerFactory.getLogger(CommentProcessorRegistry.class);
+  
+  private DocxStamperConfiguration config;
 
   private Map<ICommentProcessor, Class<?>> commentProcessorInterfaces = new HashMap<>();
 
@@ -56,7 +59,8 @@ public class CommentProcessorRegistry {
 
   private boolean failOnInvalidExpression = true;
 
-  public CommentProcessorRegistry(PlaceholderReplacer placeholderReplacer) {
+  public CommentProcessorRegistry(DocxStamperConfiguration config, PlaceholderReplacer placeholderReplacer) {
+    this.config = config;
     this.placeholderReplacer = placeholderReplacer;
   }
 
@@ -66,6 +70,9 @@ public class CommentProcessorRegistry {
 
   public void registerCommentProcessor(Class<?> interfaceClass,
                                        ICommentProcessor commentProcessor) {
+    if (config != null) {
+      commentProcessor.setProxyInterfaceImplementations(new HashMap<>(config.getExpressionFunctions()));
+    }
     this.commentProcessorInterfaces.put(commentProcessor, interfaceClass);
     this.commentProcessors.add(commentProcessor);
   }

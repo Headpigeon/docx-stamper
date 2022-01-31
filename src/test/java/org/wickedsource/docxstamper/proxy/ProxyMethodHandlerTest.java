@@ -19,7 +19,7 @@ public class ProxyMethodHandlerTest {
 	@Test
 	public void proxyDelegatesToRegisteredCommentProcessors() throws Exception {
 
-		CommentProcessorRegistry processorRegistry = new CommentProcessorRegistry(placeholderReplacer);
+		CommentProcessorRegistry processorRegistry = new CommentProcessorRegistry(null, placeholderReplacer);
 		processorRegistry.registerCommentProcessor(ITestInterface.class, new TestImpl());
 
 		NameContext contextRoot = new NameContext();

@@ -66,7 +66,7 @@ public class DocxStamper<T> {
     placeholderReplacer.setLeaveEmptyOnExpressionError(config.isLeaveEmptyOnExpressionError());
     placeholderReplacer.setReplaceNullValues(config.isReplaceNullValues());
 
-    commentProcessorRegistry = new CommentProcessorRegistry(placeholderReplacer);
+    commentProcessorRegistry = new CommentProcessorRegistry(config, placeholderReplacer);
     commentProcessorRegistry.setExpressionResolver(expressionResolver);
     commentProcessorRegistry.setFailOnInvalidExpression(config.isFailOnUnresolvedExpression());
     commentProcessorRegistry.registerCommentProcessor(IRepeatProcessor.class, new RepeatProcessor(typeResolverRegistry, expressionResolver));
@@ -83,7 +83,7 @@ public class DocxStamper<T> {
     commentProcessorRegistry.getSkipInstructions().add("displayTableRowIf");
     commentProcessorRegistry.getSkipInstructions().add("displayTableIf");
     
-    displayIfCommentProcessorRegistry = new CommentProcessorRegistry(placeholderReplacer);
+    displayIfCommentProcessorRegistry = new CommentProcessorRegistry(config, placeholderReplacer);
     displayIfCommentProcessorRegistry.setExpressionResolver(expressionResolver);
     displayIfCommentProcessorRegistry.setFailOnInvalidExpression(config.isFailOnUnresolvedExpression());
     displayIfCommentProcessorRegistry.registerCommentProcessor(IDisplayIfProcessor.class, new DisplayIfProcessor());

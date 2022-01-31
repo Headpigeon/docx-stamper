@@ -1,5 +1,6 @@
 package org.wickedsource.docxstamper.api.commentprocessor;
 
+import java.util.Map;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.wickedsource.docxstamper.api.coordinates.ParagraphCoordinates;
 import org.wickedsource.docxstamper.api.coordinates.RunCoordinates;
@@ -78,6 +79,13 @@ public interface ICommentProcessor {
      *  @param commentWrapper of the currently processed comment within the template.
      */
     void setCurrentCommentWrapper(CommentWrapper commentWrapper);
+    
+    /**
+     * Set the custom interface implementations in order to make them available to evaluation contexts.
+     * 
+     * @param proxyInterfaceImplementations Mapping of custom interfaces to their respective implementation
+     */
+    void setProxyInterfaceImplementations(Map<Class<?>, Object> proxyInterfaceImplementations);
 
     /**
      * Resets all state in the comment processor so that it can be re-used in another stamping process.
